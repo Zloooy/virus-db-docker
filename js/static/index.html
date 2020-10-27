@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<!--<meta content="width=device-width,initial-scale=2,user-scalable=no" name="viewport">--!>
+		<link rel="stylesheet" href="style.css" type="text/css">
+		<title>Virus DB</title>
+	</head>
+	<body>
+		<script src="https://unpkg.com/vue@next"></script>
+		<div id="app" align="left">
+			<div v-if="isVirusTable()">
+				<div class="table">
+					<div>
+						<div v-for="columnName in virus_spec.columnNames">
+								{{ columnName }}
+						</div>
+							
+					</div>
+					
+							<div v-for="row in virus_spec.page">
+									<div v-for="fieldName in virus_spec.fieldNames">
+											{{ row[fieldName] }}
+									</div>
+
+									<a v-on:click.prevent="deleteVirusRow(row)">delete</a>
+									<a v-on:click.prevent="toUpdate(row)">update</a>
+							</div>
+				</div>
+				<div>
+					<div class="virus-form">
+						<template v-for="namePair in virus_spec.namePairs">
+							<template v-if="notId(namePair.name)">
+								<div v-if="!isType(namePair.name)">
+									<input type="text" v-bind:placeholder="namePair.label" v-model="virus_spec.virus[namePair.name]">
+									</input>
+								</div>
+								<template v-else>
+									<select name="type" required v-model="virus_spec.virus[namePair.name]">
+										<template v-for="variant in virus_spec.typeVariants">
+											<option>
+												{{ variant }}
+											</option>
+										</template>
+									</select>
+								</template>
+								</div>
+							</template>
+						</template>
+								<a v-on:click.prevent="submitVirus()">{{virus_spec.status}}</a>
+					</div>
+				</div>
+			</div>
+			<div v-else-if="isHumanTable()">
+				<div class="table">
+					<div>
+						<div v-for="columnName in human_spec.columnNames">
+							{{columnName}}
+						</div>
+					</div>
+						<div v-for="row in human_spec.page">
+							<div>
+								{{ row.id }}
+							</div>
+							<div>
+								{{ row.deathDate }}
+							</div>
+							<div>
+								{{ row.injuries.join(", ") }}
+							</div>
+						</div>
+				</div>
+				<a v-on:click.prevent="createMillionHumans()">
+					Очистить таблицу и создать 10^6 людей
+				</a>
+			</div>
+			<a v-on:click.prevent="previousPage()" class="previous">prev</a>
+			<a v-on:click.prevent="nextPage()" class="next">next</a>
+
+			<div>
+			<a v-on:click.prevent="switchIface">
+				{{ otherIface }}
+			</a>
+			</div>
+		</div>
+		<script type="module" src="script.js"></script>
+	</body>
+</html>
