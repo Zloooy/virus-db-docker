@@ -66,12 +66,27 @@
 								{{ row.deathDate }}
 							</div>
 							<div>
-								{{ row.injuries.join(", ") }}
+								{{ row.injuries.map(getInjuryVirusName).join(", ") }}
 							</div>
 						</div>
 				</div>
 				<a v-on:click.prevent="createMillionHumans()">
 					Очистить таблицу и создать 10^6 людей
+				</a> 
+				<br>
+				{{ human_spec.infection.date }}
+				</br>
+				<input type="number" required v-model="human_spec.infection.humanNumber">
+				</input>
+				<select required v-model="human_spec.infection.virus">
+					<template v-for="virus_name in human_spec.viruses.map(getVirusName)">
+						<option>
+						{{ virus_name }}
+						</option>
+					</template>
+				</select>
+				<a v-on:click.prevent="infectHumans()">
+					Заразить
 				</a>
 			</div>
 			<a v-on:click.prevent="previousPage()" class="previous">prev</a>

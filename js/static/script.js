@@ -31,6 +31,12 @@ const App = {
 				totalPages: 0,
 			},
 			human_spec: {
+				infection: {
+					humanNumber: null,
+					date: null,
+					virus: null,
+				},
+				viruses: [],
 				page: null,
 				columnNames: humanColumnNames,
 				fieldNames: humanFieldNames,
@@ -41,7 +47,8 @@ const App = {
 	methods: {
 		deleteVirusRow(row) {
 			console.log("deleting "+row.id)
-			fetch(concat_url("viruses",row.id.toString()), {
+			fetch(concat_url("viruses",row.id.toString()), 
+				{
 				method: 'DELETE'
 			}
 			).then((response)=>console.log(response))
@@ -91,6 +98,17 @@ const App = {
 			this.virus_spec.status="update";
 			updateUI();
 		},
+		infectHumans()
+		{
+			var infection = this.human_spec.infection;
+			fetch(
+				concat_url(`infect?virusId=${this.getVirusIdByName(infection.virus)}&humanNumber=${infection.humanNumber}`),
+				{
+					method: 'POST'
+				}
+			)
+				.then(this.updateUI);
+		},
 		updateUI() {
 			switch(this.iface)
 			{
@@ -115,6 +133,20 @@ const App = {
 						this.human_spec.page = json.content;
 						this.human_spec.totalPages = json.totalPages;
 					})
+					fetch(concat_url("date"))
+					.then(response => {
+						if (!response.ok) throw Error(response.statusText);
+						return response.json();
+					})
+					.then((json)=> {
+						this.human_spec.infection.date = json;
+					});
+					fetch(concat_url("viruses","names"))
+					.then(response => {
+						if (!response.ok) throw Error(response.statusText);
+						return response.json();
+					})
+					.then((json) => {this.human_spec.viruses=Array.from(json)})
 					break;
 			}
 		},
@@ -126,6 +158,14 @@ const App = {
 			}
 			)
 			.finally(()=>this.updateUI())
+		},
+		getInjuryVirusName: (injury)=>{
+			return this.getVirusName(injury.virus);
+		},
+		getVirusName: (virus)=>virus.name,
+		getVirusIdByName(name){
+			console.log(this.human_spec.viruses);
+			return this.human_spec.viruses.find((virus)=>virus.name==name).id;
 		},
 		nextPage() {
 			if (this.isVirusTable() && this.virus_spec.pageNumber<this.virus_spec.totalPages-1)
